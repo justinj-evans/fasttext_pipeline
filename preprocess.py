@@ -1,21 +1,15 @@
 import pandas as pd
 import numpy as np
-import os
-import io
 import pickle
 import progressbar
-import collections
-from collections import namedtuple
-import re
-import six
 import unicodedata
 from sklearn.model_selection import train_test_split
 
-def create_train_test_validate():
-    # load the arguements file
-    with open("args.txt", "rb") as file:
-        args = pickle.load(file)
+# load the arguements file
+with open("args.txt", "rb") as file:
+    args = pickle.load(file)
 
+def create_train_test_validate():
     if args['train_filename'] or args['valid_filename'] or args['test_filename'] is "blank":
 
         primaryfile = pd.read_csv(args['filename_directory']+args['filename'], encoding=args['encoding'])
@@ -40,11 +34,7 @@ def create_train_test_validate():
         testdata.to_csv(args['data_directory'] + "testdata.csv")
 
 def create_label_key(path, data):
-    # load the arguements file
-    with open("args.txt", "rb") as file:
-        args = pickle.load(file)
-
-    df = pd.read_csv(path+data)
+    df = pd.read_csv(path+data+".csv")
 
     # create a numerical key
     df_code = df[[args['code']]]
@@ -91,78 +81,69 @@ def cipher(sentence, shift_value):
 print(cipher("this is an example", 2))
 
 def preprocess_dataset(path, data):
-    # load the arguements file
-    with open("args.txt", "rb") as file:
-        args = pickle.load(file)
     with open("code_key.txt", "rb") as file:
         code_dict = pickle.load(file)
-        code_key = pd.DataFrame(code_dict.items(), columns=['code_text', 'code'])
-    df = pd.read_csv(path+data)
+    df = pd.read_csv(path+data+".csv")
 
     df = df.rename(columns={args['text_primary']: 'text_primary', args['text_supp1']: 'text_supp1',
                             args['text_supp2']: 'text_supp2',args['text_supp3']: 'text_supp3',
                             args['code']: 'code_text'})
 
-    if args['text_supp1'] is "blank":
-        df['code'] = df.code_text.map(code_dict)
-        df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
-        df["text_primary"].apply(lambda x: x.lower())
-        df["formatted"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary']), axis=1)
-        np.savetxt(args['data_directory'] + "traindata_formatted.txt", df.formatted.values, fmt="%s")
-        df.to_csv(args['data_directory'] + "traindata_formatted.csv")
+    df['code'] = df.code_text.map(code_dict)
+    for col in df: # lowercase the dataframe
+        if col == str:
+            df[col] = df[col].apply(lambda x: x.lower())
 
-    if args['text_primary'] and args['text_supp1'] is not "blank" and args['text_supp2'] is "blank":
-        df['code'] = df.code_text.map(code_dict)
-        df.apply(lambda x: x.astype(str).str.upper())
+    if args['text_supp1'] == "blank":
+        df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
+        df["preprocessed"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary']), axis=1)
+        np.savetxt(args['data_directory'] + data + "_preprocessed.txt", df.preprocessed.values, fmt="%s")
+        df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
+
+    if args['text_primary'] and args['text_supp1'] != "blank" and args['text_supp2'] == "blank":
         df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
         df["text_supp1"] = df.apply(lambda row: strip_accents(row["text_supp1"]), axis=1)
 
-        df["formatted"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary'] +
+        df["preprocessed"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary'] +
                                                    cipher(row['text_supp1'],1)), axis=1)
-        np.savetxt(args['data_directory'] + "traindata_formatted.txt", df.formatted.values, fmt="%s")
-        df.to_csv(args['data_directory'] + "traindata_formatted.csv")
+        np.savetxt(args['data_directory'] + data + "_preprocessed.txt", df.preprocessed.values, fmt="%s")
+        df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
 
-    if args['text_primary'] and args['text_supp1'] and args['text_supp2']  is not "blank" and args['text_supp3'] is "blank":
-        df['code'] = df.code_text.map(code_dict)
-        df.apply(lambda x: x.astype(str).str.upper())
+    if args['text_primary'] and args['text_supp1'] and args['text_supp2'] != "blank" and args['text_supp3'] == "blank":
         df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
         df["text_supp1"] = df.apply(lambda row: strip_accents(row["text_supp1"]), axis=1)
         df["text_supp2"] = df.apply(lambda row: strip_accents(row["text_supp2"]), axis=1)
 
-        df["formatted"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary'] +
+        df["preprocessed"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary'] +
                                                    cipher(row['text_supp1'],1) + ' ' +
                                                    cipher(row['text_supp2'],2)), axis=1)
-        np.savetxt(args['data_directory'] + "traindata_formatted.txt", df.formatted.values, fmt="%s")
-        df.to_csv(args['data_directory'] + "traindata_formatted.csv")
+        np.savetxt(args['data_directory'] + data + "_preprocessed.txt", df.preprocessed.values, fmt="%s")
+        df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
 
-    if args['text_primary'] and args['text_supp1'] and args['text_supp2'] and args['text_supp3'] is not "blank":
-        df['code'] = df.code_text.map(code_dict)
-        df.apply(lambda x: x.astype(str).str.upper())
+    if args['text_primary'] and args['text_supp1'] and args['text_supp2'] and args['text_supp3'] != 'blank':
         df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
         df["text_supp1"] = df.apply(lambda row: strip_accents(row["text_supp1"]), axis=1)
         df["text_supp2"] = df.apply(lambda row: strip_accents(row["text_supp2"]), axis=1)
-        #df["text_supp3"] = df.apply(lambda row: strip_accents(row["text_supp3"]), axis=1)
+        df["text_supp3"] = df.apply(lambda row: strip_accents(row["text_supp3"]), axis=1)
 
-        df["formatted"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary'] +
+        df["preprocessed"] = df.apply(lambda row: str('__label__' + row['code'] + ' ' + row['text_primary'] +
                                                    cipher(row['text_supp1'],1) + ' ' +
                                                    cipher(row['text_supp2'],2) + ' ' +
                                                    cipher(row['text_supp3'],3)), axis=1)
-        np.savetxt(args['data_directory'] + "traindata_formatted.txt", df.formatted.values, fmt="%s")
-        df.to_csv(args['data_directory'] + "traindata_formatted.csv")
+        np.savetxt(args['data_directory'] + data + "_preprocessed.txt", df.preprocessed.values, fmt="%s")
+        df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
 
 
 # main preprocessing step
 def run_preprocess():
 
-    # load the arguements file
-    with open("args.txt", "rb") as file:
-        args = pickle.load(file)
-
     # create the three files
     create_train_test_validate()
 
-    # start preprocessing
-    create_label_key(args['data_directory'],"traindata.csv")
+    # create a label for each class
+    create_label_key(args['data_directory'],"traindata")
 
-    # determine if cipher
-    preprocess_dataset(args['data_directory'],"traindata.csv")
+    # preprocess and cipher if necessary, export data
+    preprocess_dataset(args['data_directory'],"traindata")
+    preprocess_dataset(args['data_directory'], "validdata")
+    preprocess_dataset(args['data_directory'], "testdata")
