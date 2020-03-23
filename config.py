@@ -3,9 +3,9 @@ import numpy as np
 import os
 import pickle
 
+
 # set up arguements
 def default_arguements():
-
     # create dictionary
     arg_dict = dict(text_primary="",
                     code="",
@@ -32,6 +32,10 @@ def default_arguements():
                     word_ngrams="6",
                     min_char_grams="4",
                     max_char_grams="5",
+
+                    n_iterations="100",
+                    n_size="0.50"
+
                     )
 
     # save and load
@@ -39,6 +43,7 @@ def default_arguements():
         pickle.dump(arg_dict, file)
 
     return (print(arg_dict))
+
 
 def update_arguements(updates):
     """Data Preprocessing Options"""

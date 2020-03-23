@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Justin%20Evans/Documents/Python/fasttext_project/run_scripts/mlruns/0/c06fd91932714b908d907bcb175d6311/artifacts
+end_time: 1584909577134
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: c06fd91932714b908d907bcb175d6311
+run_uuid: c06fd91932714b908d907bcb175d6311
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1584909577056
+status: 3
+tags: []
+user_id: Justin Evans
