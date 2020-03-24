@@ -1,5 +1,5 @@
 from sklearn.utils import resample
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report, confusion_matrix
 from matplotlib import pyplot
 import pandas as pd
 import pickle
@@ -9,11 +9,16 @@ import mlflow
 import mlflow.sklearn
 
 # https://machinelearningmastery.com/a-gentle-introduction-to-the-bootstrap-method/
-def bootstrap(path, data):
-    # load the arguements file
-    with open("args.txt", "rb") as file:
-        args = pickle.load(file)
+
+# load the arguements file
+with open("args.txt", "rb") as file:
+    args = pickle.load(file)
+
+def load_data(path, data):
     df = pd.read_csv(path + data + ".csv")
+    return df
+
+def bootstrap(df):
 
     # run bootstrap
     n_iterations = int(args['n_iterations'])
@@ -39,5 +44,36 @@ def bootstrap(path, data):
     mlflow.log_metric("bootstrap_cl_lower", lower)
     mlflow.log_metric("bootstrap_cl_upper", upper)
     mlflow.end_run()
+
+def f1_precision_recall(df, name):
+    weighted_f1 = round(f1_score(df.code_text, df.code_text_pred, average="weighted") * 100, 2)
+    macro_f1 = round(f1_score(df.code_text, df.code_text_pred, average="macro") * 100, 2)
+    weighted_precision = round(precision_score(df.code_text, df.code_text_pred, average="weighted") * 100, 2)
+    macro_precision = round(precision_score(df.code_text, df.code_text_pred, average="macro") * 100, 2)
+    weighted_recall = round(recall_score(df.code_text, df.code_text_pred, average="weighted") * 100, 2)
+    macro_recall = round(recall_score(df.code_text, df.code_text_pred, average="macro") * 100, 2)
+
+    #weighted_f1_name = name+"_weighted_f1"
+    #mlflow.log_metric(weighted_f1_name, weighted_f1)
+
+    print(name)
+    print("weighted_f1: ", weighted_f1)
+    print("weighted_precision: ", weighted_precision)
+    print("weighted_recall: ", weighted_recall)
+
+    # track performance
+    mlflow.log_metric("weighted_f1", weighted_f1)
+    mlflow.log_metric("macro_f1", macro_f1)
+    mlflow.log_metric("weighted_precision", weighted_precision)
+    mlflow.log_metric("macro_precision", macro_precision)
+    mlflow.log_metric("weighted_recall", weighted_recall)
+    mlflow.log_metric("macro_recall", macro_recall)
+
+def run_metrics(path, data):
+    df = load_data(path, data)
+
+    f1_precision_recall(df, data)
+    bootstrap(df)
+
 
 

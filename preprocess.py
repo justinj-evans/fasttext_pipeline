@@ -27,6 +27,10 @@ def create_train_test_validate():
         validdata.to_csv(args['data_directory'] + "validdata.csv")
         testdata.to_csv(args['data_directory'] + "testdata.csv")
 
+        # log primary file in mlflow
+        mlflow.set_tag("filename", args['filename'])
+        mlflow.set_tag("filename_directory", args['filename_directory'])
+
     else:
         traindata = pd.read_csv(args['filename_directory'] + args['train_filename'], encoding=args['encoding'])
         validdata = pd.read_csv(args['filename_directory'] + args['valid_filename'], encoding=args['encoding'])
@@ -35,6 +39,10 @@ def create_train_test_validate():
         traindata.to_csv(args['data_directory'] + "traindata.csv")
         validdata.to_csv(args['data_directory'] + "validdata.csv")
         testdata.to_csv(args['data_directory'] + "testdata.csv")
+
+        # log files in mlflow
+        mlflow.set_tag("train_filename",args['filename'])
+        mlflow.set_tag("filename_directory", args['filename_directory'])
 
 
 def create_label_key(path, data):
@@ -90,8 +98,6 @@ def preprocess_dataset(path, data):
         code_dict = pickle.load(file)
     raw_data = pd.read_csv(path + data + ".csv")
 
-    print('hello world')
-
     df = raw_data.rename(columns={args['text_primary']: 'text_primary', args['text_supp1']: 'text_supp1',
                             args['text_supp2']: 'text_supp2', args['text_supp3']: 'text_supp3',
                             args['code']: 'code_text'})
@@ -141,6 +147,13 @@ def preprocess_dataset(path, data):
         df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
 
     # log training data in mlflow
+    if data == "traindata":
+        path = args['data_directory']+"traindata_pickled/" # create a folder for mlflow to pull from
+        os.makedirs(path, exist_ok=True)
+        pkl_file = open(path + 'traindata.pkl', 'wb')
+        pickle.dump(raw_data, pkl_file)
+
+        mlflow.log_artifact(path)
 
 # main preprocessing step
 def run_preprocess():
@@ -154,5 +167,3 @@ def run_preprocess():
     preprocess_dataset(args['data_directory'], "traindata")
     preprocess_dataset(args['data_directory'], "validdata")
     preprocess_dataset(args['data_directory'], "testdata")
-
-    print('hello world')

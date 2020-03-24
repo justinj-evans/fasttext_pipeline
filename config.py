@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import pickle
+import mlflow
 
 
 # set up arguements
@@ -24,6 +25,7 @@ def default_arguements():
 
                     model_directory="",
                     model_name="model_1",
+                    model_description="default text",
                     model_quantize="yes",
                     epochs="20",
                     learning_rate="0.7",
@@ -46,7 +48,6 @@ def default_arguements():
 
 
 def update_arguements(updates):
-    """Data Preprocessing Options"""
     with open("args.txt", "rb") as file:
         arg_dict = pickle.load(file)
 
@@ -55,3 +56,13 @@ def update_arguements(updates):
     # save and load
     with open("args.txt", "wb") as file:
         pickle.dump(arg_dict, file)
+
+
+def finish_tracking():
+    with open("args.txt", "rb") as file:
+        args = pickle.load(file)
+
+    mlflow.end_run()
+    runs = pd.DataFrame(mlflow.search_runs())
+    # print(runs)
+    runs.to_csv(args['model_directory'] + "mlflow.csv")
