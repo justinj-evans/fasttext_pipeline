@@ -17,8 +17,8 @@ def create_train_test_validate():
 
         primaryfile = pd.read_csv(args['filename_directory'] + args['filename'], encoding=args['encoding'])
 
-        traindata, test_validdata = train_test_split(primaryfile, test_size=0.3, stratify=None)
-        validdata, testdata = train_test_split(test_validdata, test_size=0.5, stratify=None)
+        traindata, test_validdata = train_test_split(primaryfile, test_size=0.3, stratify=None, random_state=42)
+        validdata, testdata = train_test_split(test_validdata, test_size=0.5, stratify=None, random_state=42)
         print('training data size:', traindata.shape[0])
         print('validation data size:', testdata.shape[0])
         print('testing data size:', testdata.shape[0])
@@ -113,7 +113,7 @@ def preprocess_dataset(path, data):
         np.savetxt(args['data_directory'] + data + "_preprocessed.txt", df.preprocessed.values, fmt="%s")
         df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
 
-    if args['text_primary'] and args['text_supp1'] != "blank" and args['text_supp2'] == "blank":
+    elif args['text_primary'] and args['text_supp1'] != "blank" and args['text_supp2'] == "blank":
         df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
         df["text_supp1"] = df.apply(lambda row: strip_accents(row["text_supp1"]), axis=1)
 
@@ -122,7 +122,7 @@ def preprocess_dataset(path, data):
         np.savetxt(args['data_directory'] + data + "_preprocessed.txt", df.preprocessed.values, fmt="%s")
         df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
 
-    if args['text_primary'] and args['text_supp1'] and args['text_supp2'] != "blank" and args['text_supp3'] == "blank":
+    elif args['text_primary'] and args['text_supp1'] and args['text_supp2'] != "blank" and args['text_supp3'] == "blank":
         df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
         df["text_supp1"] = df.apply(lambda row: strip_accents(row["text_supp1"]), axis=1)
         df["text_supp2"] = df.apply(lambda row: strip_accents(row["text_supp2"]), axis=1)
@@ -133,7 +133,7 @@ def preprocess_dataset(path, data):
         np.savetxt(args['data_directory'] + data + "_preprocessed.txt", df.preprocessed.values, fmt="%s")
         df.to_csv(args['data_directory'] + data + "_preprocessed.csv")
 
-    if args['text_primary'] and args['text_supp1'] and args['text_supp2'] and args['text_supp3'] != 'blank':
+    elif args['text_primary'] and args['text_supp1'] and args['text_supp2'] and args['text_supp3'] != 'blank':
         df["text_primary"] = df.apply(lambda row: strip_accents(row["text_primary"]), axis=1)
         df["text_supp1"] = df.apply(lambda row: strip_accents(row["text_supp1"]), axis=1)
         df["text_supp2"] = df.apply(lambda row: strip_accents(row["text_supp2"]), axis=1)

@@ -35,6 +35,9 @@ def default_arguements():
                     min_char_grams="4",
                     max_char_grams="5",
 
+                    hyperparameter_metric="accuracy",
+
+                    metrics_directory="",
                     n_iterations="100",
                     n_size="0.50"
 
