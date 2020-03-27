@@ -61,7 +61,7 @@ def update_arguements(updates):
         pickle.dump(arg_dict, file)
 
 
-def finish_tracking():
+def ml_finish_run():
     with open("args.txt", "rb") as file:
         args = pickle.load(file)
 

@@ -12,7 +12,7 @@ from trainmodel import run_trainmodel
 from testmodel import run_testmodel
 from metrics import run_metrics, setthreshold_testdata
 import pandas as pd
-from config import finish_tracking
+from config import ml_finish_run
 
 ## start tracking ##
 mlflow.set_experiment("model_1")
@@ -58,6 +58,8 @@ tune_variables = [["epochs", 10, 10], ["learning_rate", 0.1, 1], ["dimensions", 
 #run_tunemodel(tune_variables, "accuracy")
 
 ## Train the model ##
+
+# note - don't define the model parameters here if you have hyperparameter tuned in the previous step
 update_arguements({"model_quantize": "yes",
                    "epochs": "10", "learning_rate": "0.7", "dimensions": "60", "minimum_word_count": "1",
                    "word_ngrams": "6", "min_char_grams": "0", "max_char_grams": "5"})
@@ -82,4 +84,4 @@ setthreshold_testdata(args['data_directory'], 'validdata_preprocessed_predicted'
 
 
 ## Tracking of ml iterations through ml flow ##
-finish_tracking()
+ml_finish_run()
