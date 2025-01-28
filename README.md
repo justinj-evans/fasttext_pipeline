@@ -23,21 +23,3 @@ Example: classifying the genre of wiki movie plots
 [7] run_metrics() - Based on the tested datasets we generate an accuracy, weighted-F1, weighted-precision, weight-recall, and a bootstrapped accuracy score.
 
 [8] setthreshold_testdata() - Finally, to mimic threshold selection we evaluate the valid dataset (select a threshold nearest 5% error), then apply this threshold to the test dataset; returning the autocoding and error rate.
-
-# Logging results - MLflow
-All model parms used to create the model are logged in the folder (\run_scripts\mlruns). The training dataset used to create the model and all model metrics are stored as well.
-https://www.mlflow.org/docs/latest/tracking.html#logging-data-to-runs
-
-
-# To-Do
-1. Add error by class metric
-2. Decrease temporary file sizes (pickle)
-3. Add options to preprocessing steps
-
-# Done
-1. Converting JupyterNotebook files to project in PyCharm. https://github.com/UNECE/CodingandClassification_Statcan
-2. Integrate local MLflow into workflow: https://www.mlflow.org/docs/latest/models.html
-3. Add hyperparameter tuning option: https://github.com/UNECE/CodingandClassification_Statcan/blob/master/Bayesian%20Tuning.ipynb
-4. Analysis metrics: bootstrap, F1, precision, recall
-5. Threshold analysis option
-
